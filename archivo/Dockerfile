@@ -7,5 +7,7 @@ ENV TZ=America/Santo_Domingo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Ejecutando la instalación de apache.
 RUN apt update && apt install -y apache2 && service apache2 start
+# Indicando el puerto para exponer por la imagen.
+EXPOSE 80
 # Moviendo el archivos a la ruta por defecto para apache.
 COPY index.html /var/www/html/
