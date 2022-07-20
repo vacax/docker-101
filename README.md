@@ -1,4 +1,4 @@
-# Taller práctico sobre el uso de Docker para Principiates - Docker 101
+# Taller práctico sobre uso de Docker para Principiantes - Docker 101
 
 ## Conceptos Básicos
 
@@ -135,4 +135,71 @@ Verificar que el contenedor está arriba:
 
 Accedemos al contenedor mediante el comando:
 
-`docker attach u1` - Notar como cambiar la terminar con el ID del contenedor.
+`docker attach u1` - Notar como cambia la terminal con el ID del contenedor.
+
+Dentro del contenedor ejecutar el siguiente comando:
+`echo "Informacion en Ubuntu U1" > mi_archivo.txt`
+
+Ejecute el comando `exit`, visualice los contenedores activos y vea el estatus del contenedor.
+
+Vamos a inicializar el contenedor nuevamente, para ello usamos el comando:
+
+`docker start u1` - Inicializamos nuevamente el contenedor por su nombre o ID.
+
+Entramos al contenedor **u1**, con el comando:
+
+`docker attach u1`
+
+Dentro del contendor podemos visualizar que el archivo creado está disponible, ejecutar el comando `ls -l`. 
+La forma correcta para salir del contenedor intectativo, sin cerrar el contenedor (entrypoint) es utilizando la combinación **crtl + p + q**
+
+Vamos a crear un nuevo contenedor basado en la imagen de ubuntu:
+
+`docker run --name u2 -d -it ubuntu `
+
+Acceda dentro del contenedor y notará que el archivo anteriormente creado no está disponible. Cada contenedor es diferente uno de otro. 
+La información almacenada una vez eliminado el contenedor se perderá. 
+Cuando trabajamos con información que debe ser persistente trabajamos con **volúmenes**. 
+
+### Creando nuestra primera imagen
+
+Conectados al contener llamado **u1**, vamos a instalar algunos software que necesitamos:
+
+`TZ=America/Santo_Domingo && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && apt update && apt install -y apache2 nmap systemd && systemctl enable apache2 && service apache2 start `
+
+Ejecute el comando `nmap localhost`, debe ver el puerto 80 abierto. Salga del contenedor con el comando `exit` y ejecute el siguiente comando:
+
+`docker commit u1 mi-primera-imagen`
+
+Si ejecutamos el comando `docker images` notaremos nuestra nueva imagen creada. Es importante verificar el tamaño, 
+representa la diferencia de la imagen base y los cambios que incluimos.
+
+### Creando nuestro primer contenedor de nuestra imagen
+
+Una vez contamos con una imagen, podemos generar cuanto contenedores necesitemos, para ellos utilizamos nuestro comando `docker run`,
+probemos con el siguiente:
+
+`docker run --name mi-u1 -d -it --rm mi-primera-imagen` - La opción **--rm** elimina el contenedor una vez concluya su proceso activo (entrypoint).
+
+Si entramos al contenedor creado con el comando `docker attach mi-u1`, podemos ver que tenemos disponibles los comandos 
+y servicios previamente instalados. Ejecute el siguiente comando:
+
+`service apache2 start && nmap localhost`
+
+Debe visualizar que el puerto 80 está activo. ¿Cómo accedemos a ese servicio?, es necesario abrir el puerto del contenedor
+para acceder desde el host. Salga del contenedor con el comando: `exit`. Notar que el contenedor fue eliminado una vez detenido.
+
+### Abriendo los puertos del contenedor
+
+* Cada contenedor está aislado incluyendo la red.
+* Es necesario indicar de forma explícita los puertos que estaremos abriendo.
+
+Para nuestro caso, volvamos a crear un nuevo contenedor utilizando nuestra imagen, bajo el comando:
+
+`docker run --name mi-u1 -d -it --rm -p 8080:80 mi-primera-imagen` - El parámetro **-p** indica el puerto abierto en el host
+asociado al puerto del contenedor, en nuestro caso puerto 8080 del host con el puerto 80 del contenedor. 
+Entre al contenedor creado
+
+### Conexión entre contenedores
+
+*
