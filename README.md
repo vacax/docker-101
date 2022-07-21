@@ -330,3 +330,13 @@ Ver la información en [Uso de Dockerignore](/uso-dockerignore/README.md)
 * Es necesario disponer de un usuario, registrase en el servicio. 
 * Para preparar una imagen aplicamos el siguiente comando: `sudo docker tag nombre_imagen_local id_usuario/nombre_a_subir`. 
 * Para enviar una imagen:  `sudo docker push id_usuario/nombre_a_subir`.
+
+### Multistage build en Docker
+
+Fue incluido en la versión 17.05 permitiendo que podamos separar la fase de preparación o compilación
+de nuestro código evitando que nuestras imágenes sean muy grandes. Anteriormente el esquema utilizado es "todo en uno".
+
+Veamos un ejemplo de un DockerFile del tipo:
+
+
+
