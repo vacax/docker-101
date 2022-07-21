@@ -198,8 +198,135 @@ Para nuestro caso, volvamos a crear un nuevo contenedor utilizando nuestra image
 
 `docker run --name mi-u1 -d -it --rm -p 8080:80 mi-primera-imagen` - El parámetro **-p** indica el puerto abierto en el host
 asociado al puerto del contenedor, en nuestro caso puerto 8080 del host con el puerto 80 del contenedor. 
-Entre al contenedor creado
+Entre al contenedor creado.
 
-### Conexión entre contenedores
+Si entramos al contenedor `docker attach mi-u1` y una vez dentro ejecutamos los siguientes
+comandos: `service apache2 start && nmap localhost`. Puede verificar mediante la dirección
+[http://localhost:8080/](http://localhost:8080/) que el servicio está respondiendo
 
-*
+### Volúmenes en los contenedores
+
+* Toda la información que es almacenada en el contenedor, una vez es destruido se pierde para siempre.
+* Los volúmenes son como discos duros virtuales administrados por Docker. Docker maneja el almacenamiento en disco (generalmente en /var/lib/docker/volumes/)
+* Docker nos permite habilitar volúmenes de datos donde asociamos una carpeta del host con una del contenedor.
+* Los volúmenes tienen una relación bidireccional, es decir, si se modifica en el host se modifica en el contenedor y viceversa.
+* Para gestionar los volúmenes tenemos el comando `docker volume help` y visualizamos todas las opciones.
+
+Para crear un volumen podemos usar el comando: `docker volume create nombre-volumen` o asociarlo directamente 
+al contenedor indicando la carpeta en el host, con el parámetro **-v carpeta-host:carpeta-contenedor**.
+
+Vamos a trabajar con nuestro ejemplo, con el siguiente comando:
+
+`docker run --name mi-u1 -d -it --rm -p 8080:80 -v /website:/var/www/html mi-primera-imagen` - Verificar que el parámetro
+**-v**, donde en el host tendremos la carpeta del **website** asociada a la carpeta **/var/www/html mi-primera-imagen**.
+
+Vamos a modificar el site de inicio con el siguiente mensaje:
+
+`echo "JCONF DOMINICANA 2022" > /website/index.html`
+
+Accediendo a la ruta [http://localhost:8080/](http://localhost:8080/) podremos ver el mensaje.
+
+Si eliminamos el contenedor con el comando `docker stop mi-u1` notaremos que la carpeta e información estará disponible en el host y
+si creamos nuevamente el contenedor e iniciamos el servicio tendremos la información almacenada.
+
+Otra forma de aplicar los mismos conceptos es mediante la creación del volumen no vinculante a aun carpeta,
+mediante el comando `docker volume create vol-website` y sustituyendo previo por el siguiente: `docker run --name mi-u1 -d -it --rm -p 8080:80 -v vol-website:/var/www/html mi-primera-imagen` 
+con el comando `docker inspect mi-u1`, buscamos la sección **Mounts** y podemos ver donde se almacena la información. 
+
+### Comunicación entre contenedores
+
+* Los contenedores no ven la IP externa del host al cual están conectados de forma directa.
+* Cada contenedor tiene su propio esquema de direccionamiento IP, desde el contenedor el nombre localhost representa el mismo contenedor, no el host.
+* Docker maneja el direccionamiento interno de las peticiones entre contenedores siempre y cuando pertenezcan a una misma red.
+* Para la creación de la red, nos auxiliamos del comando `docker network create <<nombre-de-la-red>>`.
+* Cada contenedor que estará comunicándose es requerido indicar el parámetro **-network** en la definición del contenedor.
+
+Para realizar la comunicación entre los contenedores, vamos a trabajar con el siguiente esquema: 
+
+![Relacion Contenedores por Red](/imagenes/esquema-app-red.png)
+
+Las imágenes que estaremos son las siguientes:
+
+* `docker pull mysql:5.7.38`
+* `docker pull vacax/micro-servicio-estudiante:latest` - Ver fuente: [https://github.com/vacax/micro-servicios-estudiante](https://github.com/vacax/micro-servicios-estudiante)
+
+Vamos a crear una red que permita la comunicación entre los dos contenedores:
+
+`docker network create mi-red`
+
+La creación de los contenedores de la base de datos:
+
+`docker run --name mysql-interno -v ~/datadir_mysq_otrol:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=12345678 -e MYSQL_DATABASE=micro_estudiante -d --rm --network mi-red mysql:5.7.38` -
+Ver el parámetro **network** con el valor **mi-red** y la introducción de variables de ambientes para el contenedor
+con el parámetro **-e** con los valores **MYSQL_ROOT_PASSWORD** para mencionar uno. Notar que no está abierto el puerto para el host.
+
+La creación de la aplicación:
+
+`docker run --name bo-micro-estudiante -e spring.datasource.url="jdbc:mysql://mysql-interno:3306/micro_estudiante" -p 8090:8080 --rm -d --network mi-red vacax/micro-servicio-estudiante`
+
+Los logs de cada una de los contenedores podemos de verlo de:
+
+* `docker logs -f bo-micro-estudiante`
+* `docker logs -f mysql-interno`
+
+El servicio está funcionando y podemos interactuar con el servicio:
+
+`curl -X POST <<URL>>
+-H 'Content-Type: application/json'
+-d '{"matricula":20011136,"nombre":"Carlos Camacho", "carrera": "ITT"}'`
+
+### Los recursos utilizados
+
+Para ver los recursos y la relación de los procesos podemos utilizar el comando: 
+
+`docker stats`
+
+Puedo limitar el uso la memoria con el parámetro **--memory valor** o la cpu con **--cpuset-cpus valor** 
+
+## Archivo Dockerfile
+
+* Nos permite agilizar y automatizar la creación de imágenes para nuestros contenedores.
+* Creamos un archivo con las instrucciones necesarias para crear nuestra imagen.
+* El archivo se llama Dockerfile y utilizamos una serie de instrucciones para uso.
+
+### Instrucciones 
+
+- `FROM` - Indicamos la imagen que estaremos utilizando y su versión. Conviene especificar versión para que el contenedor funcione si la versión de la imagen se modifica. Recomendación de utilizar imágenes basadas en `alpine` (como `tag`) por su poco *overhead* agregado a las aplicaciones.
+- `WORKDIR` - Declara la ruta en la que se va a trabajar dentro del contenedor, si no existe, se creará.
+- `COPY` - Copia todos los archivos que se le indiquen a una ruta determinada del contenedor. `COPY . .` copia todos los archivos de nuestra carpeta al `WORKDIR`.
+- `RUN` - Comando que se ejecuta al construir la imagen del contenedor.
+- `CMD` - Comando que se ejecuta por defecto cuando se ejecuta la imagen del contenedor
+- `ENTRYPOINT` - Permite dejar abierto un comando para pasarle argumentos. Al hacer `docker run` habrá que pasarle un argumento, tal que: `docker run argumento`.
+- `EXPOSE` - Indica los puertos que estaremos permitiendo conexión al contenedor.
+- `ENV` - Crear variables de ambiente en el contenedor.
+- `ADD` - Añade un fichero de la máquina host a la imagen y permite consultas a URL.
+- `VOLUME` - Permite crear un punto de montaje externo al contenedor, se utiliza para persistir la información generada por los contenedores.
+
+### ¿Entrypoint o CMD?
+
+* Los contenedores están diseñados para ejecutar una tarea o un proceso, no para "hostiar" un sistemas operativo.
+* Cuando el proceso o tarea termina el contenedor termina.
+* En Docker tenemos las instrucciones CMD o ENTRYPOINT para definir un comando que se ejecutará por defecto.
+* ENTRYPOINT es la aplicación principal y el CMD será los parámetros que estaremos enviando.
+
+Vamos a ejecutar el archivo [Dockerfile EntryPoint](cmd-entrypoint/Dockerfile), para construir una imagen 
+desde un archivo Dockerfile utilizamos el siguiente comando `docker build -t mi-dockerfile .` donde se encuentra el
+archivo Dockerfile. 
+
+Si ejecutamos `docker images` podemos la imagen creada. Si ejecutamos un contenedor `docker run mi-dockerfile`, notar la salida.
+Si ejecutamos `docker run mi-dockerfile "JCONF Dominicana 2022"` ver como sobreescribimos el segundo parámetro de CMD.
+
+### Dockerfile de nuestra imagen web
+
+Ejecutar el archivo [Dockerfile ServidorWeb](archivo/Dockerfile), para construir nuestra imagen lista para servir páginas web.
+Ejecutamos el comando `docker build -t mi-apache .` y corremos el contenedor `docker run -p 8080:80 --rm -d mi-apache`.
+
+### Uso de .dockerignore
+
+Ver la información en [Uso de Dockerignore](/uso-dockerignore/README.md)
+
+### Subir nuestra imagen a Docker Hub
+
+* Es necesario disponer de un usuario, registrase en el servicio. 
+* Para preparar una imagen aplicamos el siguiente comando: `sudo docker tag nombre_imagen_local id_usuario/nombre_a_subir`. 
+* Para enviar una imagen:  `sudo docker push id_usuario/nombre_a_subir`.

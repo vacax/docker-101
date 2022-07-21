@@ -5,7 +5,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle bootJar --no-daemon
 
-# Utilizando uan imagen con lo necesario para arrancar la aplicación.
+# Utilizando una imagen con lo necesario para arrancar la aplicación.
 # en Java las imagenes slim son las mas pequeñas en ese tipo.
 FROM openjdk:11.0.12-jre-slim-buster
 # indicando el puerto para exponer, debo pasar el flag -p para habilitarlo o -P para publicarlos todos.
@@ -16,4 +16,3 @@ RUN mkdir /app
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/mi-app-multi-stage.jar
 ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/mi-app-multi-stage.jar"]
 
-docker pull gradle:5.6.4-jdk11

@@ -11,3 +11,6 @@ RUN apt update && apt install -y apache2 systemd && systemctl enable apache2
 EXPOSE 80
 # Moviendo el archivos a la ruta por defecto para apache.
 COPY index.html /var/www/html/
+
+# Ejecutando apache2 como servicio.
+ENTRYPOINT ["apachectl", "-D", "FOREGROUND"]
