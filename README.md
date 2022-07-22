@@ -367,7 +367,8 @@ El archivo `docker-compose.yaml`, está estructurado en secciones las más relev
 ### Ejemplo un servicio con Docker compose
 
 Ver la configuración en docker-compose para nuestro ejemplo que hemos estado trabajando 
-en el siguiente enlace: [Servicio Docker Compose](/docker-compose/docker-compose.yaml)
+en el siguiente enlace: [Servicio Docker Compose](/docker-compose/docker-compose.yaml).
+El proyecto original se encuentra en https://github.com/vacax/micro-servicios-estudiante. 
 
 Del archivo podemos notar como la información de configuración para cada servicio utilizamos
 variables de ambientes, disponemos de la instrucción `depends_on` donde indicamos el orden de 
@@ -383,9 +384,9 @@ inicialización de los servicios.
 
 ### Comandos útiles de docker-compose
 
-- docker-compose up
-- docker-compose stop
-- docker-compose start
-- docker-compose down
-- docker-compose ps
-- docker-compose logs 
+- `docker-compose up`
+- `docker-compose stop`
+- `docker-compose start`
+- `docker-compose down`
+- `docker-compose ps`
+- `docker-compose logs` 
