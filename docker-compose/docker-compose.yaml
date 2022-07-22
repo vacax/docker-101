@@ -1,0 +1,53 @@
+#indica la version de Docker Compose utilizada
+version: '3.8'
+#Bloque de servicios, indica los contenedores a utilizar.
+services:
+  app-web:       #nombre del servicio
+    image: vacax/micro-servicio-estudiante #imagen utilizada si viene del registro.
+    #build: . # Puedo compilar directament el archivo Dockerfile, para recompilarlo debo forzarlo.
+    ports:          #puertos que estaran expuestos.
+      - ${PUERTO_APP}:8080
+    env_file: #Indica el parametro para
+      - .env
+    environment:    #variable de ambiente
+      - NOMBRE_APP=$AMBIENTE
+    networks:    #red para conectar los equipos.
+      - red-app
+    volumes:
+      - mi-volumen-compose:/tmp/ #Uso de los volumenes.
+    depends_on:   #indica que primero debe subir los servicios indicados.
+      - base-datos-app-web
+
+  base-datos-app-web:
+    image: mysql:5.7.26
+    ports:
+      - ${PUERTO_DB}:3306
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$DB_PASSWORD
+      - MYSQL_USER=$DB_USER
+      - MYSQL_DATABASE=$DB_NAME
+    volumes:   #volumen de datos utilizado.
+      - ~/dato_mysql_compose:/var/lib/mysql
+    networks:
+      - red-app
+
+  phpmyadmin: # Cliente phpmyadmin para
+    image: phpmyadmin:5.1.1
+    env_file:
+      - .env
+    ports:
+      - ${PUERTO_PHPMYADMIN}:80
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      - red-app
+    depends_on: #indica que primero debe subir los servicios indicados.
+      - base-datos-app-web
+
+networks:  #bloque para las redes
+  red-app:   #indicando la red definida
+
+volumes: #Bloque para definir los volumenes
+  mi-volumen-compose:

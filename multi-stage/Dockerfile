@@ -7,7 +7,7 @@ RUN gradle bootJar --no-daemon
 
 # Utilizando una imagen con lo necesario para arrancar la aplicación.
 # en Java las imagenes slim son las mas pequeñas en ese tipo.
-FROM openjdk:11.0.12-jre-slim-buster
+FROM eclipse-temurin:11-jre-alpine
 # indicando el puerto para exponer, debo pasar el flag -p para habilitarlo o -P para publicarlos todos.
 EXPOSE 8080
 # creando la carpeta para el proyecto

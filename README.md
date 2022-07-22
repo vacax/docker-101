@@ -136,6 +136,7 @@ Verificar que el contenedor está arriba:
 Accedemos al contenedor mediante el comando:
 
 `docker attach u1` - Notar como cambia la terminal con el ID del contenedor.
+`docker exec -it u1 /bin/bash` - Podemos ejecutar un comando en el contenedor.
 
 Dentro del contenedor ejecutar el siguiente comando:
 `echo "Informacion en Ubuntu U1" > mi_archivo.txt`
@@ -336,7 +337,55 @@ Ver la información en [Uso de Dockerignore](/uso-dockerignore/README.md)
 Fue incluido en la versión 17.05 permitiendo que podamos separar la fase de preparación o compilación
 de nuestro código evitando que nuestras imágenes sean muy grandes. Anteriormente el esquema utilizado es "todo en uno".
 
-Veamos un ejemplo de un DockerFile del tipo:
+Veamos un ejemplo de un DockerFile del tipo **Todo en Uno** en el siguiente enlace:
+[Dockerfile Todo en Uno](https://github.com/vacax/orm-jpa/blob/master/Dockerfile-todoenuno). Si compilamos la imagen y 
+validamos el tamaño con `docker images <<nombre-imagen>>`, notarán su gran tamaño.
+
+Utilizando el concepto de Multistage, podemos evitar la descarga o carga en la imagen de software de compilación
+que no tienen sentido una vez se ejecuta la imagen, ver ejemplo en siguiente enlace: [Docker Multistage](/multi-stage/Dockerfile).
+Notar nuevamente tamaño y compararlo con la otra imagen generada.
 
 
+## Docker Compose
 
+### ¿Qué es?
+
+* Es una herramienta para facilitar el proceso de creación y gestión de los contenedores Docker que están asociados entre sí en un **Host**.
+* Es representado por un archivo de en formato YAML donde permite configurar los contenedores con una sintaxis mucho más simple, llamado por defecto `docker-compose.yaml`.
+* La instalación y documentación puede ser accedida desde: https://docs.docker.com/compose/ y https://docs.docker.com/compose/install/, no es parte del motor de Docker.
+* Permite la configuración de las variables de ambientes: https://docs.docker.com/compose/environment-variables/
+
+### Estructura del Archivo 
+
+El archivo `docker-compose.yaml`, está estructurado en secciones las más relevantes son:
+
+* `version` - La versión de la sintaxis de lo que se está incluyendo en el archivo yaml.
+* `services` - Indica los servicios (contenedores) que estaremos utilizando.
+* `networks` - Permite definir las redes que estarán utilizando los contenedores. De forma implícita todos los servicios pertenecen a la misma red.
+* `volumes` - Permite la creación de los volúmenes de datos.
+
+### Ejemplo un servicio con Docker compose
+
+Ver la configuración en docker-compose para nuestro ejemplo que hemos estado trabajando 
+en el siguiente enlace: [Servicio Docker Compose](/docker-compose/docker-compose.yaml)
+
+Del archivo podemos notar como la información de configuración para cada servicio utilizamos
+variables de ambientes, disponemos de la instrucción `depends_on` donde indicamos el orden de 
+inicialización de los servicios.
+
+### Ejecución del Docker Compose
+
+* `docker-compose up -d` - La opción `-d` permite que los servicios se ejecuten como servicios.
+
+### Para del servicio y eliminar instancias
+
+* `docker-compose down` - Borrará todo el contenido y la red, pero los datos persistirán si se comparte un volumen.
+
+### Comandos útiles de docker-compose
+
+- docker-compose up
+- docker-compose stop
+- docker-compose start
+- docker-compose down
+- docker-compose ps
+- docker-compose logs 
