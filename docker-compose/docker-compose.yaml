@@ -11,6 +11,9 @@ services:
       - .env
     environment:    #variable de ambiente
       - NOMBRE_APP=$AMBIENTE
+    # Incluyendo la opción de reiniciar el contenedor en caso existir algún problema, la primera vez puede ocurrir
+    # que la base de datos aún no esté inicializada.
+    restart: always
     networks:    #red para conectar los equipos.
       - red-app
     volumes:

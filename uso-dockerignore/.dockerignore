@@ -1,2 +1,2 @@
 # indicamos los archivos o carpetas que estaremos sacando del contexto para la creación de la imagen.
-muchos-archivos
+.bin

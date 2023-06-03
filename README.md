@@ -201,6 +201,8 @@ Para nuestro caso, volvamos a crear un nuevo contenedor utilizando nuestra image
 asociado al puerto del contenedor, en nuestro caso puerto 8080 del host con el puerto 80 del contenedor. 
 Entre al contenedor creado.
 
+![Esquema de Comunicación](/imagenes/diagrama-conexion.png)
+
 Si entramos al contenedor `docker attach mi-u1` y una vez dentro ejecutamos los siguientes
 comandos: `service apache2 start && nmap localhost`. Puede verificar mediante la dirección
 [http://localhost:8080/](http://localhost:8080/) que el servicio está respondiendo
