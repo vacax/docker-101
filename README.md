@@ -378,17 +378,17 @@ inicialización de los servicios.
 
 ### Ejecución del Docker Compose
 
-* `docker-compose up -d` - La opción `-d` permite que los servicios se ejecuten como servicios.
+* `docker compose up -d` - La opción `-d` permite que los servicios se ejecuten como servicios.
 
 ### Para del servicio y eliminar instancias
 
-* `docker-compose down` - Borrará todo el contenido y la red, pero los datos persistirán si se comparte un volumen.
+* `docker compose down` - Borrará todo el contenido y la red, pero los datos persistirán si se comparte un volumen.
 
 ### Comandos útiles de docker-compose
 
-- `docker-compose up`
-- `docker-compose stop`
-- `docker-compose start`
-- `docker-compose down`
-- `docker-compose ps`
-- `docker-compose logs` 
+- `docker compose up`
+- `docker compose stop`
+- `docker compose start`
+- `docker compose down`
+- `docker compose ps`
+- `docker compose logs` 
