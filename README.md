@@ -376,6 +376,10 @@ Del archivo podemos notar como la información de configuración para cada servi
 variables de ambientes, disponemos de la instrucción `depends_on` donde indicamos el orden de 
 inicialización de los servicios.
 
+El esquema estaremos utilizando:
+
+![Esquema Docker Compose](/imagenes/esquema-docker-compose.png)
+
 ### Ejecución del Docker Compose
 
 * `docker compose up -d` - La opción `-d` permite que los servicios se ejecuten como servicios.
