@@ -14,6 +14,9 @@ services:
     # Incluyendo la opción de reiniciar el contenedor en caso existir algún problema, la primera vez puede ocurrir
     # que la base de datos aún no esté inicializada.
     restart: always
+    security_opt:
+      - no-new-privileges:true              # Previene escalado de privilegios
+    user: "1000:1000"                       # No ejecutar como root
     networks:    #red para conectar los equipos.
       - red-app
     volumes:
@@ -31,6 +34,9 @@ services:
       - MYSQL_ROOT_PASSWORD=$DB_PASSWORD
       - MYSQL_USER=$DB_USER
       - MYSQL_DATABASE=$DB_NAME
+    security_opt:
+      - no-new-privileges:true              # Previene escalado de privilegios
+    user: "999:999"                       # No ejecutar como root
     volumes:   #volumen de datos utilizado.
       - ~/dato_mysql_compose:/var/lib/mysql
     networks:
@@ -44,6 +50,9 @@ services:
       - ${PUERTO_PHPMYADMIN}:80
     environment:
       - PMA_ARBITRARY=1
+    security_opt:
+      - no-new-privileges:true              # Previene escalado de privilegios
+    user: "1000:1000"                       # No ejecutar como root
     networks:
       - red-app
     depends_on: #indica que primero debe subir los servicios indicados.
