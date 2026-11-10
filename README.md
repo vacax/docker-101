@@ -396,3 +396,10 @@ El esquema estaremos utilizando:
 - `docker compose down`
 - `docker compose ps`
 - `docker compose logs` 
+
+## Aplicación de apoyo: contador-so
+
+En la carpeta [contador-so](/contador-so) está una aplicación web mínima en Python + Redis que muestra lo que
+el proceso "ve" del sistema operativo desde dentro del contenedor (hostname, PID, usuario, kernel, límites del
+cgroup, capabilities). Se utiliza en la práctica de contenedores de ICC-331 Sistemas Operativos; ver su
+[README](/contador-so/README.md).
